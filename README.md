@@ -67,8 +67,9 @@ Companies often launch marketing campaigns without understanding which customer 
 ```
 📦 customer-performance-dashboard/
  ┣ 📄 customer-performance-dax.txt   # All custom DAX measures used
- ┣ 📊 screenshots/                   # (Optional) Include dashboard images
+ ┣ 📊 dashboard image.png/           # Include dashboard images
  ┣ 📄 README.md                      # Project overview and documentation
+ ┣ 📊 Customer Performance.pbix/     # Include Power BI project
 ```
 
 ---
