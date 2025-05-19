@@ -76,7 +76,7 @@ Companies often launch marketing campaigns without understanding which customer 
 
 ## 🧠 How to Use
 
-1. Open the Power BI `.pbix` file (not included here for privacy).
+1. Open the Power BI `.pbix` file.
 2. Connect to your dataset with similar schema:
     - `FactTable` (OrderQuantity, ProductID, CustomerID)
     - `DimCustomer` (Gender, Age Group, Country, TotalChildren)
