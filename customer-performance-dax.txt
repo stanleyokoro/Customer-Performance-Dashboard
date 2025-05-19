@@ -1,0 +1,104 @@
+
+-- Total Revenue
+Total Revenue = 
+    SUMX(FactTable, FactTable[OrderQuantity] * RELATED(DimProduct[Price]))
+
+-- CWC Revenue (Customers With Children)
+CWC Revenue = 
+    CALCULATE([Total Revenue], FILTER(DimCustomer, DimCustomer[TotalChildren] > 0))
+
+-- CWOC Revenue (Customers Without Children)
+CWOC Revenue = 
+    CALCULATE([Total Revenue], FILTER(DimCustomer, DimCustomer[TotalChildren] = 0))
+
+-- Female Revenue
+Female Revenue = 
+    CALCULATE([Total Revenue], FILTER(DimCustomer, DimCustomer[Gender] = "Female"))
+
+-- Male Revenue
+Male Revenue = 
+    CALCULATE([Total Revenue], FILTER(DimCustomer, DimCustomer[Gender] = "Male"))
+
+-- % Female Revenue
+% Female Revenue = 
+    DIVIDE([Female Revenue], [Total Revenue])
+
+-- % Male Revenue
+% Male Revenue = 
+    DIVIDE([Male Revenue], [Total Revenue])
+
+-- Conditional Formatting for Female Revenue
+CF Female = 
+    VAR _f = [% Female Revenue]
+    VAR _m = [% Male Revenue]
+    RETURN SWITCH(TRUE(), _f > _m, "#F94C10", "#A0A0A0")
+
+-- Conditional Formatting for Male Revenue
+CF Male = 
+    VAR _f = [% Female Revenue]
+    VAR _m = [% Male Revenue]
+    RETURN SWITCH(TRUE(), _m > _f, "#0077B6", "#A0A0A0")
+
+-- Avg Revenue (Age Group)
+Avg Revenue (Age Group) = 
+    AVERAGEX(VALUES(DimCustomer[Age Group]), [Total Revenue])
+
+-- Conditional Formatting for Age Group Revenue
+CF Age-Group = 
+    VAR _rev = [Total Revenue]
+    VAR _avg = [Avg Revenue (Age Group)]
+    RETURN IF(_rev > _avg, "yellow", "gray")
+
+-- Dynamic Caption for Age Group Insights
+Avg Caption = 
+    VAR _Total = [Total Revenue]
+    VAR _Avg = [Avg Revenue (Age Group)]
+    VAR _TopAgeGroup = 
+        CALCULATE(
+            SELECTEDVALUE(DimCustomer[Age Group]),
+            TOPN(1, VALUES(DimCustomer[Age Group]), [Total Revenue])
+        )
+    RETURN
+        FORMAT(_Total, "£#,##0.00") & 
+        " generated, with " & FORMAT(_Avg, "£#,##0.00") & 
+        " average per age group, primarily led by the " & _TopAgeGroup
+
+-- Country with Highest CWC Revenue
+Top Country CWC = 
+    TOPN(1, VALUES(DimCustomer[Country]), [CWC Revenue])
+
+-- % CWC in Country
+% CWC in Country = 
+    VAR TotalCust = CALCULATE(COUNTROWS(DimCustomer))
+    VAR CWCCust = CALCULATE(COUNTROWS(DimCustomer), DimCustomer[TotalChildren] > 0)
+    RETURN DIVIDE(CWCCust, TotalCust)
+
+-- Revenue by Country
+Revenue by Country = 
+    CALCULATE([Total Revenue], ALLEXCEPT(DimCustomer, DimCustomer[Country]))
+
+-- Gender % by Country
+% Female by Country = 
+    CALCULATE([Female Revenue], ALLEXCEPT(DimCustomer, DimCustomer[Country])) / [Revenue by Country]
+
+% Male by Country = 
+    CALCULATE([Male Revenue], ALLEXCEPT(DimCustomer, DimCustomer[Country])) / [Revenue by Country]
+
+-- Dynamic Country Insight Caption
+Country Caption = 
+    "“" & SELECTEDVALUE(DimCustomer[Country]) & " leads with " & 
+    FORMAT([% CWC in Country], "0.00%") & 
+    " of customers with children, generating " & FORMAT([CWC Revenue], "£#,##0.00") & 
+    " from " & FORMAT(CALCULATE(COUNTROWS(DimCustomer), DimCustomer[TotalChildren] > 0), "#,##0") & 
+    " customers, comprising " & FORMAT([% Male by Country], "0.00%") & " male and " & 
+    FORMAT([% Female by Country], "0.00%") & " female.”"
+
+-- Top Customers by Revenue
+Customer Revenue = 
+    SUMX(RELATEDTABLE(FactTable), FactTable[OrderQuantity] * RELATED(DimProduct[Price]))
+
+Top Customers = 
+    RANKX(ALL(DimCustomer), [Customer Revenue], , DESC)
+
+Dynamic Customers Title = 
+    "The " & SELECTEDVALUE(TopCustomerCount[Value]) & " Highest Ranking Customers"
