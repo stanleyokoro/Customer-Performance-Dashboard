@@ -89,7 +89,7 @@ Companies often launch marketing campaigns without understanding which customer 
 ## 📬 Contact
 
 **Stanley Chinor Okoro**  
-[GitHub Profile](https://github.com/timelesshov) • [LinkedIn](https://www.linkedin.com/in/timelesshov) • 📧 stanley.chinor@gmail.com
+[GitHub Profile](https://github.com/stanleyokoro) • [LinkedIn](https://www.linkedin.com/in/timelesshov) • 📧 stanley.chinor@gmail.com
 
 ---
 
